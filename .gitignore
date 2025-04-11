@@ -1,4 +1,6 @@
 .env
 .idea
 campaign-data
-combined_campaign.md.DS_Store
+combined_campaign.md
+.DS_Store
+node_modules
