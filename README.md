@@ -22,7 +22,7 @@ Markdown files for offline use or further processing.
 ```bash
 npm i
 # Add your Kanka API token to the .env file under the API_TOKEN
-touch .env
+echo "API_TOKEN=your_token_here" > .env
 
 npm run kanka-export
 
