@@ -10,7 +10,7 @@ const CAMPAIGN_ID = process.env.CAMPAIGN_ID;
 const KANKA_DOMAIN = "https://api.kanka.io"
 const BASE_URL = `${KANKA_DOMAIN}/1.0/campaigns/${CAMPAIGN_ID}`;
 
-const fetchData = async (url: string) => {
+const fetchData = async (url: string, retries = 3, delay = 1000) => {
     let data: any[] = [];
 
     try {
@@ -22,11 +22,18 @@ const fetchData = async (url: string) => {
                 'Accept': 'application/json',
             },
         });
-
-        if (!response.ok) {
+        
+        if( response.status === 429 ) {
+            // Implement exponential backoff
+            const retryDelay = delay * Math.pow(2, (3 - retries));
+            console.warn(`429 error, retrying in ${retryDelay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            return fetchData(url, retries - 1, delay); // Recursive call
+        }
+        else if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
-
+        
         const jsonData = await response.json();
         data = data.concat(jsonData.data);
         if (jsonData.links.next) {
@@ -84,7 +91,9 @@ const fetchAllData = async () => {
         quests: "quest",
         organisations: "organisation",
         abilities: "ability",
-        families: "family"
+        families: "family",
+        journals: "journal",
+        maps: "map"
     }
 
     const allData: Record<string, any[]> = {}
