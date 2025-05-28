@@ -66,7 +66,16 @@ const processEntity = (type: string, entity: any, allData: Record<string, any[]>
     const rawContent = entity.entry || 'No content available.';
 
     const contentWithRefs = replaceReferences(rawContent, allData);
-    const markdownContent = NodeHtmlMarkdown.translate(contentWithRefs);
+    const markdownContent = NodeHtmlMarkdown.translate(
+        contentWithRefs, 
+        undefined, 
+        {
+            'iframe': ({node}) => ({
+                content: `${node}`,
+                preserveIfEmpty: true
+            })
+        }
+    );
 
     const content = `# ${entity.name}\n\n${markdownContent}`;
     writeMarkdownFile(directory, filename, content);
