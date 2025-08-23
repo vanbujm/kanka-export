@@ -1,8 +1,9 @@
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, renameSync } from 'fs';
 import { join, extname } from 'path';
 
 const SOURCE_DIR = 'campaign-data';
-const OUTPUT_FILE = 'combined-campaign.md';
+const OUTPUT_FILE = 'combined-campaign-new.md';
+const OLD_OUTPUT_FILE = 'combined-campaign-old.md';
 
 const collectMarkdownFiles = (dir: string): string[] => {
     let files: string[] = [];
@@ -24,7 +25,12 @@ const combineMarkdownFiles = (files: string[]) => {
         .map((filePath) => readFileSync(filePath, 'utf8'))
         .join('\n\n---\n\n');
 
-    writeFileSync(OUTPUT_FILE, combinedContent, 'utf8');
+    if (existsSync(OUTPUT_FILE)) {
+        renameSync(OUTPUT_FILE, OLD_OUTPUT_FILE);
+        console.log(`Renamed existing ${OUTPUT_FILE} to ${OLD_OUTPUT_FILE}`);
+    }
+
+    writeFileSync(OUTPUT_FILE, `Last updated: ${new Date().toLocaleString()}\n\n${combinedContent}`, 'utf8');
 };
 
 const files = collectMarkdownFiles(SOURCE_DIR);
