@@ -125,7 +125,16 @@ const processEntity = (type: string, entity: any, allData: AllData) => {
     const metaData = entityProcessingMap[type] ? `${entityProcessingMap[type](entity, allData)}\n\n` : '';
 
     const contentWithRefs = replaceReferences(rawContent, allData);
-    const markdownContent = NodeHtmlMarkdown.translate(contentWithRefs);
+    const markdownContent = NodeHtmlMarkdown.translate(
+        contentWithRefs, 
+        undefined, 
+        {
+            'iframe': ({node}) => ({
+                content: `${node}`,
+                preserveIfEmpty: true
+            })
+        }
+    );
 
     const content = `# ${entity.name}\n\n${metaData}${markdownContent}`;
     writeMarkdownFile(directory, filename, content);
